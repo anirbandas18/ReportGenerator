@@ -31,6 +31,6 @@
 3. Type `run` at the command prompt and follow the on screen instructions to run the application. 
 
 # NOTE : 
-1. Enter `mode` value as either **profile** to dump csv reports by Profile names and as **properties** to dump csv reports by properties name.
+1. Enter `mode` value as either **profile** to dump csv reports by Profile names and as **property** to dump csv reports by properties name.
 1. Use the path to the directory `profiles` under the root directory of the project as **Input Directory** value
 2. Create a directory as `[mode]_output` before running the `run.bat` file and use the path to `[mode]_output` as **Output Directory** value where `mode` is the value specified in step 1
