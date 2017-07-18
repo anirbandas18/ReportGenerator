@@ -36,26 +36,6 @@ public class ReportService implements Callable<String> {
 		}
 		return dirPath.toString();
 	}
-	
-	/*private void getFieldsByProfile() throws FileNotFoundException {
-		//System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream("sterr.txt")), true));
-		
-		//System.setErr(System.err);
-	}
-	
-	private void getProfilesByFields() throws FileNotFoundException {
-		//System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("stdout.txt")), true));
-		FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
-		Set<String> uniqueFields = fieldPermissionsDAO.retrieveUniqueFields();
-		for(String fieldName : uniqueFields) {
-			Set<FieldPermissionsEntity> profiles = fieldPermissionsDAO.retrieveProfilesByField(fieldName);
-			System.out.println("PROFILES FOR : " + fieldName);
-			for(FieldPermissionsEntity p : profiles) {
-				System.out.println(p.getProfile());
-			}
-		}
-		//System.setOut(System.out);
-	}*/
 
 	@Override
 	public String call() throws Exception {
