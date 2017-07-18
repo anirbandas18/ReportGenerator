@@ -1,0 +1,10 @@
+/target/
+/bin/
+/reportdb/
+/single_input/
+/single_output/
+/dependency-reduced-pom.xml
+/derby.log
+/stderr.txt
+/stdout.txt
+/sterr.txt

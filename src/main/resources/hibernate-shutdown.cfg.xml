@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
+        <property name="hibernate.connection.url">jdbc:derby:;shutdown=true</property>
+       	<property name="hibernate.dialect">org.hibernate.dialect.DerbyTenSevenDialect</property>
+        <property name="hibernate.connection.password">app</property>
+        <property name="hibernate.connection.username">root</property>
+    </session-factory>
+</hibernate-configuration>
