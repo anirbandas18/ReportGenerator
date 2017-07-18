@@ -24,7 +24,7 @@ public class ProfileDAO {
 			tx = session.beginTransaction();
 			String before = profile.getName();
 			session.save(profile);
-			ProfileEntity after = session.get(ProfileEntity.class, before);
+			ProfileEntity after = (ProfileEntity) session.get(ProfileEntity.class, before);
 			flag = before.equalsIgnoreCase(after.getName());
 			tx.commit();
 		} catch (HibernateException e) {
@@ -40,27 +40,6 @@ public class ProfileDAO {
 		return flag;
 	}
 	
-	public ProfileEntity retrieve(String profileName) {
-		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
-		Session session = sessionfactory.getCurrentSession();
-		Transaction tx = null;
-		ProfileEntity profile = new ProfileEntity();
-		try {
-			tx = session.beginTransaction();
-			profile = session.get(ProfileEntity.class, profileName);
-			tx.commit();
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			System.out.println(e.getClass() + " " + e.getMessage());
-		} finally {
-			if(session.isOpen()) {
-				session.close();
-			}
-		}
-		return profile;
-	}
 	
 	public Set<ProfileEntity> retrieveAll() {
 		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();

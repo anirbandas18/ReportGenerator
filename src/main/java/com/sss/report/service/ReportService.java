@@ -13,7 +13,6 @@ import java.util.concurrent.FutureTask;
 import com.sss.report.core.Constants;
 import com.sss.report.dao.FieldPermissionsDAO;
 import com.sss.report.dao.ProfileDAO;
-import com.sss.report.entity.FieldPermissionsEntity;
 import com.sss.report.entity.ProfileEntity;
 
 public class ReportService implements Callable<String> {
@@ -49,7 +48,7 @@ public class ReportService implements Callable<String> {
 			ProfileDAO profileDAO = new ProfileDAO();
 			Set<ProfileEntity> fields = profileDAO.retrieveAll();
 			for(ProfileEntity pe : fields) {
-				csvService = new CSVService(mode.toString(), pe.getName(), pe.getFieldPermissions());
+				csvService = new CSVService(mode.toString(), pe.getName());
 				FutureTask<String> csvTask = new FutureTask<String>(csvService);
 				threadPool.submit(csvTask);
 				reportContent = csvTask.get();
@@ -62,8 +61,7 @@ public class ReportService implements Callable<String> {
 			FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
 			Set<String> uniqueFields = fieldPermissionsDAO.retrieveUniqueFields();
 			for(String fieldName : uniqueFields) {
-				Set<FieldPermissionsEntity> profiles = fieldPermissionsDAO.retrieveProfilesByField(fieldName);
-				csvService = new CSVService(mode.toString(), fieldName, profiles);
+				csvService = new CSVService(mode.toString(), fieldName);
 				FutureTask<String> csvTask = new FutureTask<String>(csvService);
 				threadPool.submit(csvTask);
 				reportContent = csvTask.get();

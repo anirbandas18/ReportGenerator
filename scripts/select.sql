@@ -2,7 +2,9 @@ select * from profile order by name asc;
 
 select * from FIELD_PERMISSIONS order by name asc;
 
-select * from FIELD_PERMISSIONS where name like 'Standard.profile' order by field asc;
+select editable, readable, field from FIELD_PERMISSIONS where name like 'Standard.profile' order by field asc;
+
+select editable, readable, name from FIELD_PERMISSIONS where field like 'SVMXC__Service_Order__c.Rejected_By__c' order by name asc;
 
 select distinct name from FIELD_PERMISSIONS order by name asc;
 
