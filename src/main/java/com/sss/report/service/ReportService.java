@@ -12,8 +12,6 @@ import java.util.concurrent.FutureTask;
 
 import com.sss.report.core.Constants;
 import com.sss.report.dao.FieldPermissionsDAO;
-import com.sss.report.dao.ProfileDAO;
-import com.sss.report.entity.ProfileEntity;
 
 public class ReportService implements Callable<String> {
 	
@@ -42,23 +40,24 @@ public class ReportService implements Callable<String> {
 		String dirLocation = createDirectories();
 		Constants mode = Constants.valueOf(this.mode);
 		ExecutorService threadPool = Executors.newCachedThreadPool();
+		FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
 		Long start = System.currentTimeMillis();
 		switch(mode) {
 		case profile :
-			ProfileDAO profileDAO = new ProfileDAO();
-			Set<ProfileEntity> fields = profileDAO.retrieveAll();
-			for(ProfileEntity pe : fields) {
-				csvService = new CSVService(mode.toString(), pe.getName());
+			//ProfileDAO profileDAO = new ProfileDAO();
+			//Set<ProfileEntity> fields = profileDAO.retrieveAll();
+			Set<String> uniqueProfiles = fieldPermissionsDAO.retrieveUniqueProfiles();
+			for(String profileName : uniqueProfiles) {
+				csvService = new CSVService(mode.toString(), profileName);
 				FutureTask<String> csvTask = new FutureTask<String>(csvService);
 				threadPool.submit(csvTask);
 				reportContent = csvTask.get();
-				String fileName = pe.getName().split("\\.")[0] + CSVService.CSV_EXTENSION;
+				String fileName = profileName.split("\\.")[0] + CSVService.CSV_EXTENSION;
 				Path filePath = Files.write(Paths.get(dirLocation, fileName), reportContent.getBytes());
 				System.out.println(filePath);
 			}
 			break;
 		case property :
-			FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
 			Set<String> uniqueFields = fieldPermissionsDAO.retrieveUniqueFields();
 			for(String fieldName : uniqueFields) {
 				csvService = new CSVService(mode.toString(), fieldName);

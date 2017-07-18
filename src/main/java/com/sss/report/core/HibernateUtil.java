@@ -5,9 +5,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
-import com.sss.report.entity.FieldPermissionsEntity;
-import com.sss.report.entity.ProfileEntity;
-
 public class HibernateUtil {
 
 	private static SessionFactory sessionFactory;
@@ -25,14 +22,7 @@ public class HibernateUtil {
 	private static void buildSessionFactory(String hibernateConfigFilePath) {
 		try {
 			Configuration configuration = new Configuration();
-			/*if(hibernateConfigFilePath.length() == 0) {
-				configuration.configure();
-			} else {
-				configuration.configure(hibernateConfigFilePath);
-			}*/
 			configuration.configure(hibernateConfigFilePath);
-			configuration.addAnnotatedClass(ProfileEntity.class);
-			configuration.addAnnotatedClass(FieldPermissionsEntity.class);
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties())
 					.build();
 			sessionFactory = configuration.buildSessionFactory(serviceRegistry);

@@ -1,23 +1,18 @@
 package com.sss.report.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "field_permissions")
-public class FieldPermissionsEntity implements Comparable<FieldPermissionsEntity>{
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "name", nullable = false)
-	private ProfileEntity profile;
+public class FieldPermissionsEntity /*implements Comparable<FieldPermissionsEntity>*/{
 	private Boolean editable;
 	private String field;
 	private Boolean readable;
+	private String profile;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -50,19 +45,27 @@ public class FieldPermissionsEntity implements Comparable<FieldPermissionsEntity
 		this.readable = readable;
 	}
 
-	public ProfileEntity getProfile() {
+	public String getProfile() {
 		return profile;
 	}
 
-	public void setProfile(ProfileEntity profile) {
+	public void setProfile(String profile) {
 		this.profile = profile;
 	}
 
-	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/*@Override
 	public int compareTo(FieldPermissionsEntity o) {
 		Integer x = this.profile.getName().compareTo(o.getProfile().getName());
 		Integer y = this.field.compareTo(o.getField());
 		return Integer.compare(x, y);
 	}
-
+*/
 }

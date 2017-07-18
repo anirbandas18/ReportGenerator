@@ -63,6 +63,36 @@ public class FieldPermissionsDAO {
 				tx.rollback();
 			}
 			System.out.println(e.getClass() + " " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return fieldPermissions;
+	}
+	
+	public Set<String> retrieveUniqueProfiles() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.getCurrentSession();
+		Transaction tx = null;
+		Set<String> fieldPermissions = new TreeSet<>();;
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(FieldPermissionsEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("profile"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("profile"));
+			List<String> fieldPermissionsList = criteria.list();
+			fieldPermissions.addAll(fieldPermissionsList);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			System.out.println(e.getClass() + " " + e.getMessage());
+			e.printStackTrace();
 		} finally {
 			if(session.isOpen()) {
 				session.close();
@@ -84,7 +114,7 @@ public class FieldPermissionsDAO {
 			projList.add(Projections.property("readable"), "readable");
 			projList.add(Projections.property("field"), "field");
 			criteria.setProjection(projList);
-			criteria.add(Restrictions.eq("profile.name", profileName));
+			criteria.add(Restrictions.eq("profile", profileName));
 			criteria.addOrder(Order.asc("field"));
 			criteria.setResultTransformer(Transformers.aliasToBean(FieldPermissionsEntity.class));
 			fieldPermissionsList = criteria.list();

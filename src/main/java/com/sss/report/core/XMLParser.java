@@ -5,8 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.xml.stream.FactoryConfigurationError;
@@ -15,11 +15,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import com.sss.report.dao.FieldPermissionsDAO;
-import com.sss.report.dao.ProfileDAO;
 import com.sss.report.entity.FieldPermissionsEntity;
-import com.sss.report.entity.ProfileEntity;
 
-public class XMLParser implements Callable<ProfileEntity> {
+public class XMLParser implements Callable<List<FieldPermissionsEntity>> {
 	
 	private String xmlFilePath;
 
@@ -48,22 +46,16 @@ public class XMLParser implements Callable<ProfileEntity> {
 	}
 	
 	@Override
-	public ProfileEntity call() throws Exception {
+	public List<FieldPermissionsEntity> call() throws Exception {
 		// TODO Auto-generated method stub
 		configureXMLParser();
-		Set<FieldPermissionsEntity> fieldPermissionsSet = new LinkedHashSet<>();
+		List<FieldPermissionsEntity> fieldPermissionsSet = new ArrayList<>();
 		Boolean relatedToFieldPermissions = Boolean.FALSE;
-		ProfileDAO profileDAO = new ProfileDAO();
 		FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
 		FieldPermissionsEntity fieldPermissions = new FieldPermissionsEntity();
-		ProfileEntity profile = new ProfileEntity();
 		String name = "";
 		while (xmlStreamReader.hasNext()) {
 			switch (xmlStreamReader.getEventType()) {
-			case XMLStreamReader.START_DOCUMENT:
-				profile.setName(getXMLFileName());
-				System.out.println(profile.getName() + " " + profileDAO.create(profile));
-				break;
 			case XMLStreamReader.START_ELEMENT:
 				name = xmlStreamReader.getLocalName();
 				if(isFieldPermissions(name)) {
@@ -81,7 +73,7 @@ public class XMLParser implements Callable<ProfileEntity> {
 			case XMLStreamReader.END_ELEMENT:
 				name = xmlStreamReader.getLocalName();
 				if(isFieldPermissions(name)) {
-					fieldPermissions.setProfile(profile);
+					fieldPermissions.setProfile(getXMLFileName());
 					Integer id = fieldPermissionsDAO.create(fieldPermissions);
 					System.out.println(id + " " + fieldPermissions.getField());
 					fieldPermissionsSet.add(fieldPermissions);
@@ -101,14 +93,11 @@ public class XMLParser implements Callable<ProfileEntity> {
 					field.setAccessible(false);
 				}
 				break;
-			case XMLStreamReader.END_DOCUMENT :
-				profile.setFieldPermissions(fieldPermissionsSet);
-				break;
 			}
 			xmlStreamReader.next();
 		}
 		xmlStreamReader.close();
-		return profile;
+		return fieldPermissionsSet;
 	}
 
 }
