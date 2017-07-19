@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.sss.report.core.Constants;
+import com.sss.report.core.Utility;
 import com.sss.report.dao.FieldPermissionsDAO;
 import com.sss.report.entity.FieldPermissionsEntity;
 
 public class CSVService implements Callable<String> {
-
-	private static final String CSV_DELIMITTER = ",";
-	
-	public static final String CSV_EXTENSION = ".csv";
 
 	private String mode;
 
@@ -37,16 +34,16 @@ public class CSVService implements Callable<String> {
 		} 
 		StringWriter sw = new StringWriter();
 		BufferedWriter bw = new BufferedWriter(sw);
-		bw.write(CSV_DELIMITTER + header);
+		bw.write(Utility.CSV_DELIMITTER + header);
 		bw.newLine();
 		for (FieldPermissionsEntity fpe : fieldPermissions) {
 			String line = "";
 			if(mode.equals(Constants.profile.toString())) {
-				line = fpe.getField() + CSV_DELIMITTER;
+				line = fpe.getField() + Utility.CSV_DELIMITTER;
 			} else if (mode.equals(Constants.property.toString())) {
-				line = fpe.getProfile().toString() + CSV_DELIMITTER;
+				line = fpe.getProfile().toString() + Utility.CSV_DELIMITTER;
 			} else {
-				line = line + CSV_DELIMITTER;
+				line = line + Utility.CSV_DELIMITTER;
 			}
 			line = line + fpe.toString();
 			bw.write(line);

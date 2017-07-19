@@ -1,12 +1,14 @@
-select * from profile order by name asc;
+select * from FIELD_PERMISSIONS order by profile asc;
 
-select * from FIELD_PERMISSIONS order by name asc;
+select this_.editable as y0_, this_.readable as y1_, this_.field as y2_ from field_permissions this_ where this_.profile like '2_1 - Inside Sales - Sales Insight%' order by y2_ asc;
 
 select editable, readable, field from FIELD_PERMISSIONS where name like 'Standard.profile' order by field asc;
 
-select editable, readable, name from FIELD_PERMISSIONS where field like 'SVMXC__Service_Order__c.Rejected_By__c' order by name asc;
+select editable, readable, profile from FIELD_PERMISSIONS where field like 'SVMXC__Service_Order__c.Rejected_By__c' order by profile asc;
 
-select distinct name from FIELD_PERMISSIONS order by name asc;
+select distinct substr(profile,1,locate('.profile',profile) - 1) profile_name from FIELD_PERMISSIONS;
+
+select distinct profile from FIELD_PERMISSIONS order by profile asc;
 
 select distinct field from field_permissions order by field asc;
 

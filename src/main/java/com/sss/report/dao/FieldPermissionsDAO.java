@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -20,8 +15,11 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
 import com.sss.report.core.HibernateUtil;
+import com.sss.report.core.Utility;
 import com.sss.report.entity.FieldPermissionsEntity;
 
 public class FieldPermissionsDAO {
@@ -86,9 +84,11 @@ public class FieldPermissionsDAO {
 			tx = session.beginTransaction();
 			Criteria criteria = session.createCriteria(FieldPermissionsEntity.class);
 			ProjectionList projList = Projections.projectionList();
-			projList.add(Projections.property("profile"));
+			String sql = "substr(profile, 1, locate('" + Utility.PROFILE_EXTENSION + "', profile) - 1) as profile_name";
+			String [] columnAliases = { "profile_name" };
+			Type [] types = { StandardBasicTypes.STRING };
+			projList.add(Projections.sqlProjection(sql, columnAliases, types));
 			criteria.setProjection(Projections.distinct(projList));
-			criteria.addOrder(Order.asc("profile"));
 			List<String> fieldPermissionsList = criteria.list();
 			fieldPermissions.addAll(fieldPermissionsList);
 			tx.commit();
@@ -113,13 +113,14 @@ public class FieldPermissionsDAO {
 		List<FieldPermissionsEntity> fieldPermissionsList = new ArrayList<>();
 		try {
 			tx = session.beginTransaction();
+			profileName = profileName + Utility.PROFILE_EXTENSION;
 			Criteria criteria = session.createCriteria(FieldPermissionsEntity.class);
 			ProjectionList projList = Projections.projectionList();
 			projList.add(Projections.property("editable"), "editable");
 			projList.add(Projections.property("readable"), "readable");
 			projList.add(Projections.property("field"), "field");
 			criteria.setProjection(projList);
-			criteria.add(Restrictions.eq("profile", profileName));
+			criteria.add(Restrictions.like("profile", profileName));
 			criteria.addOrder(Order.asc("field"));
 			criteria.setResultTransformer(Transformers.aliasToBean(FieldPermissionsEntity.class));
 			fieldPermissionsList = criteria.list();
