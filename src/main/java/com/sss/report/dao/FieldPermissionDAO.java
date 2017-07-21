@@ -17,7 +17,6 @@ import org.hibernate.transform.Transformers;
 import com.sss.report.core.DAO;
 import com.sss.report.core.HibernateUtil;
 import com.sss.report.entity.FieldPermissionEntity;
-import com.sss.report.entity.FieldPermissionEntity;
 
 @DAO(forEntity = FieldPermissionEntity.class)
 public class FieldPermissionDAO  {

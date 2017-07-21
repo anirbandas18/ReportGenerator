@@ -16,7 +16,6 @@ import org.hibernate.transform.Transformers;
 
 import com.sss.report.core.DAO;
 import com.sss.report.core.HibernateUtil;
-import com.sss.report.entity.LayoutAssignmentEntity;
 import com.sss.report.entity.LayoutAssignmentEntity;;
 
 @DAO(forEntity = LayoutAssignmentEntity.class)
