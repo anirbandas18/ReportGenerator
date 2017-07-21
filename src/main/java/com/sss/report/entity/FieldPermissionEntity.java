@@ -8,14 +8,19 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "field_permissions")
-public class FieldPermissionsEntity /*implements Comparable<FieldPermissionsEntity>*/{
+public class FieldPermissionEntity  extends ProfileEntity{
 	private Boolean editable;
 	private String field;
 	private Boolean readable;
-	private String profile;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	public Boolean getEditable() {
 		return editable;
 	}
@@ -45,27 +50,4 @@ public class FieldPermissionsEntity /*implements Comparable<FieldPermissionsEnti
 		this.readable = readable;
 	}
 
-	public String getProfile() {
-		return profile;
-	}
-
-	public void setProfile(String profile) {
-		this.profile = profile;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/*@Override
-	public int compareTo(FieldPermissionsEntity o) {
-		Integer x = this.profile.getName().compareTo(o.getProfile().getName());
-		Integer y = this.field.compareTo(o.getField());
-		return Integer.compare(x, y);
-	}
-*/
 }

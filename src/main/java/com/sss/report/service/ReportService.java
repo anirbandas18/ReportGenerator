@@ -4,78 +4,75 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Collectors;
 
 import com.sss.report.core.Constants;
 import com.sss.report.core.Utility;
 import com.sss.report.dao.FieldPermissionsDAO;
+import com.sss.report.dao.TabVisibilitiesDAO;
+import com.sss.report.model.ReportMetadata;
 
-public class ReportService implements Callable<String> {
+public class ReportService {
 	
 	private CSVService csvService;
 	
-	private String mode;
+	private ReportMetadata reportMetadata;
 	
-	private String reportRepositoryLocation;
-	
-	public ReportService(String mode, String reportRepositoryLocation) {
-		this.mode = mode;
-		this.reportRepositoryLocation = reportRepositoryLocation; 
+	public ReportService(ReportMetadata reportMetadata) {
+		this.reportMetadata = reportMetadata;
 	}
 	
-	private String createDirectories() throws IOException {
-		Path dirPath = Paths.get(reportRepositoryLocation, mode.toString());
-		if(!Files.exists(dirPath)) {
-			return Files.createDirectories(dirPath).toString();
+	private 
+	
+	private Map<Constants,String> createDirectories() throws IOException {
+		Map<Constants,String> reportPaths = new TreeMap<>();
+		Set<Set<Constants>> propertiesCollection = profileSet.stream().map(x -> x.getProperties()).collect(Collectors.toSet());
+		Set<Constants> properties = propertiesCollection.stream().flatMap(Set::stream).collect(Collectors.toSet());
+		for(Constants property : properties) {
+			Path dirPath = Paths.get(reportRepositoryLocation, mode.toString(), property.toString());
+			if(!Files.exists(dirPath)) {
+				dirPath = Files.createDirectories(dirPath);
+			}
+			reportPaths.put(property, dirPath.toString());
 		}
-		return dirPath.toString();
+		return reportPaths;
 	}
 
-	@Override
-	public String call() throws Exception {
+	public List<String> call() throws Exception {
 		String reportContent = "";
-		String dirLocation = createDirectories();
+		Map<Constants,String> reportPaths = createDirectories();
 		Constants mode = Constants.valueOf(this.mode);
 		ExecutorService threadPool = Executors.newCachedThreadPool();
 		FieldPermissionsDAO fieldPermissionsDAO = new FieldPermissionsDAO();
+		TabVisibilitiesDAO tabVisibilitiesDAO = new TabVisibilitiesDAO();
 		Long start = System.currentTimeMillis();
 		Set<String> uniqueResults = new TreeSet<>();
 		switch(mode) {
 		case profile :
-			/*Set<String> uniqueProfiles = fieldPermissionsDAO.retrieveUniqueProfiles();
-			for(String profileName : uniqueProfiles) {
-				csvService = new CSVService(mode.toString(), profileName);
-				FutureTask<String> csvTask = new FutureTask<String>(csvService);
-				threadPool.submit(csvTask);
-				reportContent = csvTask.get();
-				String fileName = profileName.split("\\.")[0] + Utility.CSV_EXTENSION;
-				Path filePath = Files.write(Paths.get(dirLocation, fileName), reportContent.getBytes());
-				System.out.println(filePath);
-			}*/
-			uniqueResults = fieldPermissionsDAO.retrieveUniqueProfiles();
+			for(String xmlFilePath : profileSet.keySet()) {
+				String xmlFileName = Utility.getXMLFileName(xmlFilePath);
+				ProfileService profileService = new ProfileService(xmlFileName, profileSet.get(xmlFilePath), reportPaths);
+				FutureTask<Long> profileTask = new FutureTask<>(profileService);
+				threadPool.submit(profileTask);
+				Long duration = profileTask.get();
+			}
 			break;
 		case property :
-			/*Set<String> uniqueFields = fieldPermissionsDAO.retrieveUniqueFields();
-			for(String fieldName : uniqueFields) {
-				csvService = new CSVService(mode.toString(), fieldName);
-				FutureTask<String> csvTask = new FutureTask<String>(csvService);
-				threadPool.submit(csvTask);
-				reportContent = csvTask.get();
-				String fileName = fieldName + Utility.CSV_EXTENSION;
-				Path filePath = Files.write(Paths.get(dirLocation, fileName), reportContent.getBytes());
-				System.out.println(filePath);
-			}*/
 			uniqueResults = fieldPermissionsDAO.retrieveUniqueFields();
 			break;
 		default : 
 			break;
 		}
-		for(String result : uniqueResults) {
+		/*for(String result : uniqueResults) {
 			csvService = new CSVService(mode.toString(), result);
 			FutureTask<String> csvTask = new FutureTask<String>(csvService);
 			threadPool.submit(csvTask);
@@ -85,11 +82,12 @@ public class ReportService implements Callable<String> {
 			Path filePath = Paths.get(dirLocation, fileName);
 			filePath = Files.write(filePath, bytes);
 			System.out.println(filePath + " " + Utility.humanReadableByteCount(Utility.bytesToLong(bytes)));
-		}
+		}*/
 		threadPool.shutdown();
 		Long end = System.currentTimeMillis();
 		System.out.println("Reports generated in " + Utility.milisecondsToSeconds(end -start) + " seconds");
-		return dirLocation;
+		List<String> reports = new ArrayList<String>(reportPaths.values());
+		return reports;
 	}
 
 }

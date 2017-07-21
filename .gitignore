@@ -9,3 +9,6 @@
 /stdout.txt
 /sterr.txt
 /script.sql
+/drop-table.sql
+/output.txt
+/reduced_input/

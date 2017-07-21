@@ -1,4 +1,10 @@
+select * from CLASS_ACCESSES;
+
+select * from FIELD_PERMISSIONS;
+
 select * from FIELD_PERMISSIONS order by profile asc;
+
+select * from TAB_VISIBILITIES order by PROFILE asc;
 
 select this_.editable as y0_, this_.readable as y1_, this_.field as y2_ from field_permissions this_ where this_.profile like '2_1 - Inside Sales - Sales Insight%' order by y2_ asc;
 

@@ -18,7 +18,14 @@ public class Utility {
 	public static final String PROFILE_EXTENSION = ".profile";
 	public static final String CSV_EXTENSION = ".csv";
 	public static final String FILE_NAME = "fileName";
+	public static final String TABLE_NAME_SEPARATOR = "_";
+	public static final char FILE_EXTENSION_SEPARATOR = '.';
 
+	public static String getXMLFileName(String xmlFilePath) {
+		String xmlFileName = xmlFilePath.substring(xmlFilePath.lastIndexOf(File.separatorChar) + 1);
+		return xmlFileName;
+	}
+	
 	public static Long bytesToLong(byte[] bytes) {
 		ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
 		buffer.put(bytes);
@@ -104,6 +111,22 @@ public class Utility {
 			item.setAccessible(false);
 		}
 		return content;
+	}
+
+	public static String getFileNameWithoutExtension(String fullyQualifiedFileName) {
+		String fileNameWithoutExt = fullyQualifiedFileName.substring(0, fullyQualifiedFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR));
+		return fileNameWithoutExt;
+	}
+
+	public static String getFileExtension(String fullyQualifiedFileName) {
+		String fileExt = fullyQualifiedFileName.substring(fullyQualifiedFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR) + 1);
+		return fileExt;
+	}
+	
+	public static String formatTableName(String name) {
+		String tokens[] = name.split(TABLE_NAME_SEPARATOR);
+		String formattedName = String.join("", tokens);
+		return formattedName;
 	}
 
 }
