@@ -12,3 +12,6 @@
 /drop-table.sql
 /output.txt
 /reduced_input/
+/combined_input/
+/combined_output/
+/reduced_output/
