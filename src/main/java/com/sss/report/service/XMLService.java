@@ -38,14 +38,12 @@ public class XMLService {
 		Long totalDuration = 0L;
 		for(Path xmlFile : xmlFilesFromRepository) {
 			String xmlFilePath = xmlFile.toString();
-			FutureTask<Set<String>> xmlParsingTask = new FutureTask<>( new XMLParser(xmlFilePath));
+			FutureTask<Set<String>> xmlParsingTask = new FutureTask<>( new XMLParser(shouldParse, xmlFilePath));
 			Long begin = System.currentTimeMillis();
 			System.out.println("Processing : " + Utility.getXMLFileName(xmlFilePath));
-			if(shouldParse) {
-				threadPool.submit(xmlParsingTask);
-				Set<String> childProperties = xmlParsingTask.get();
-				masterProperties.addAll(childProperties);
-			}
+			threadPool.submit(xmlParsingTask);
+			Set<String> childProperties = xmlParsingTask.get();
+			masterProperties.addAll(childProperties);
 			Long end = System.currentTimeMillis();
 			totalDuration = totalDuration + (end - begin);
 			counter++;

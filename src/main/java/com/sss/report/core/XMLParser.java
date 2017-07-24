@@ -28,12 +28,13 @@ public class XMLParser implements Callable<Set<String>> {
 	private Set<String> propertyNames;
 	private List<Class<?>> repositoryClassList;
 	private List<Class<? extends ProfileEntity>> entityClassList;
+	private Boolean shouldParse;
 	
 	
-	
-	public XMLParser(String xmlFilePath) {
+	public XMLParser(Boolean shouldParse, String xmlFilePath) {
 		this.xmlFilePath = xmlFilePath;
 		this.propertyNames = new TreeSet<>();
+		this.shouldParse = shouldParse;
 	}
 
 	
@@ -98,8 +99,10 @@ public class XMLParser implements Callable<Set<String>> {
 						repositoryObject = repository.newInstance();
 						DAO dao = repository.getDeclaredAnnotation(DAO.class);
 						Method m = repository.getDeclaredMethod(CREATE_ENTITY_METHOD_NAME, dao.forEntity());
-						Object e = m.invoke(repositoryObject, entityObject);
-						System.out.println("Persisted " + e + " " + entityObject.getClass().getSimpleName() + " for " + profileName);
+						if(shouldParse) {
+							Object e = m.invoke(repositoryObject, entityObject);
+							System.out.println("Persisted " + e + " " + entityObject.getClass().getSimpleName() + " for " + profileName);
+						}
 					}
 				} else {
 					currentTagBelongsToEntity = false;

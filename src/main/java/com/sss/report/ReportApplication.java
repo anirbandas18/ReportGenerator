@@ -35,7 +35,7 @@ public class ReportApplication {
 		reportMetadata.setMode(Mode.valueOf(args[0]));
 		reportMetadata.setProfileMetadata(profileMetadata);
 		reportMetadata.setReportDumpLocation(args[2]);
-		// System.out.println(reportMetadata);
+		 System.out.println(reportMetadata);
 		ReportDumpService reportDump = new ReportDumpService(reportMetadata);
 		reportDump.generate(reportMetadata);
 		registry.putBoolean(args[1], false);

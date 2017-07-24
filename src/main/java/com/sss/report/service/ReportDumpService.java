@@ -52,10 +52,10 @@ public class ReportDumpService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Long profile(String propertyName) throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException, IOException, ClassNotFoundException {
+	private Integer profile(String propertyName) throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException, IOException, ClassNotFoundException {
 		ProfileMetadata profileMetadata = reportMetadata.getProfileMetadata();
 		String parentReportDumpLocationForProperty = createDirectories(propertyName);
-		Long totalDuration = 0l;
+		int noOfReports = 0;
 		for(String profileName : profileMetadata.getProfileNames()) {
 			String reportName = profileName + Utility.CSV_EXTENSION;
 			Path reportLocationForProfile = Paths.get(parentReportDumpLocationForProperty, reportName);
@@ -71,24 +71,27 @@ public class ReportDumpService {
 			reportLocationForProfile = Files.write(reportLocationForProfile, bytes);
 			Long end = System.currentTimeMillis();
 			Long duration = end - start;
-			totalDuration = totalDuration + duration;
+			noOfReports++;
 			System.out.println(reportLocationForProfile.toString() + " of size " + Utility.humanReadableByteCount(Utility.bytesToLong(bytes)) + " generated in " + Utility.milisecondsToSeconds(duration) + " seconds");
 		}
-		return totalDuration;
+		return noOfReports;
 	}
 	
 	public void generate(ReportMetadata reportMetadata) throws Exception {
 		ProfileMetadata profileMetadata = reportMetadata.getProfileMetadata();
+		Long start = System.currentTimeMillis();
+		int noOfReports = 0;
 		for(String propertyName : profileMetadata.getProfileProperties()) {
 			switch(reportMetadata.getMode()) {
 			case profile : 
-				Long duration = profile(propertyName);
-				System.out.println(profileMetadata.getProfileProperties().size() + " reports dumped at " + reportMetadata.getReportDumpLocation() + " in " + Utility.milisecondsToSeconds(duration));
+				noOfReports = noOfReports + profile(propertyName);
 				break;
 			case properties : // 
 				break;
 			}
 		}
+		Long end = System.currentTimeMillis();
+		System.out.println(noOfReports + " reports dumped at " + reportMetadata.getReportDumpLocation() + " in " + Utility.milisecondsToSeconds(end - start) + " seconds");
 	}
 	
 }
