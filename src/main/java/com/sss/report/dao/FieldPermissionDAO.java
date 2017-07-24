@@ -101,5 +101,36 @@ public class FieldPermissionDAO  {
 		return distinct;
 	}
 	
+	public List<FieldPermissionEntity> findByKeyProperty(String key) {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<FieldPermissionEntity> entities = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(FieldPermissionEntity.class);
+			ProjectionList projections = Projections.projectionList();
+			projections.add(Projections.property("profile"), "profile");
+			projections.add(Projections.property("readable"), "readable");
+			projections.add(Projections.property("editable"), "editable");
+			criteria.setProjection(projections);
+			criteria.add(Restrictions.like("field", key));
+			criteria.addOrder(Order.asc("profile"));
+			criteria.setResultTransformer(Transformers.aliasToBean(FieldPermissionEntity.class));
+			entities = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return entities;
+	}
+	
 	
 }

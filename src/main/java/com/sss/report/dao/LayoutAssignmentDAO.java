@@ -106,4 +106,38 @@ public class LayoutAssignmentDAO   {
 		return distinct;
 	}
 	
+	public List<LayoutAssignmentEntity> findByKeyProperty(String key) {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<LayoutAssignmentEntity> entities = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(LayoutAssignmentEntity.class);
+			ProjectionList projections = Projections.projectionList();
+			projections.add(Projections.property("profile"), "profile");
+			String sql = "coalesce (recordType, '') as recordType";
+			String [] columnAliases = { "recordType" };
+			Type [] types = { StandardBasicTypes.STRING };
+			projections.add(Projections.sqlProjection(sql, columnAliases, types));
+			criteria.setProjection(projections);
+			criteria.add(Restrictions.like("layout", key));
+			criteria.addOrder(Order.asc("profile"));
+			criteria.setResultTransformer(Transformers.aliasToBean(LayoutAssignmentEntity.class));
+			entities = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return entities;
+	}
+	
+	
 }

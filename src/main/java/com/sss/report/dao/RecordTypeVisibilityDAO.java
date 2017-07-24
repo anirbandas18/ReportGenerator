@@ -100,4 +100,35 @@ public class RecordTypeVisibilityDAO   {
 		}
 		return distinct;
 	}
+	
+	public List<RecordTypeVisibilityEntity> findByKeyProperty(String key) {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<RecordTypeVisibilityEntity> entities = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(RecordTypeVisibilityEntity.class);
+			ProjectionList projections = Projections.projectionList();
+			projections.add(Projections.property("profile"), "profile");
+			projections.add(Projections.property("default_"), "default_");
+			projections.add(Projections.property("visible"), "visible");
+			criteria.setProjection(projections);
+			criteria.add(Restrictions.like("recordType", key));
+			criteria.addOrder(Order.asc("profile"));
+			criteria.setResultTransformer(Transformers.aliasToBean(RecordTypeVisibilityEntity.class));
+			entities = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return entities;
+	}
 }

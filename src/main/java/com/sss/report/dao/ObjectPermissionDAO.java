@@ -104,4 +104,40 @@ public class ObjectPermissionDAO   {
 		}
 		return distinct;
 	}
+	
+	public List<ObjectPermissionEntity> findByKeyProperty(String key) {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<ObjectPermissionEntity> entities = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(ObjectPermissionEntity.class);
+			ProjectionList projections = Projections.projectionList();
+			projections.add(Projections.property("profile"), "profile");
+			projections.add(Projections.property("allowCreate"), "allowCreate");
+			projections.add(Projections.property("allowRead"), "allowRead");
+			projections.add(Projections.property("allowEdit"), "allowEdit");
+			projections.add(Projections.property("allowDelete"), "allowDelete");
+			projections.add(Projections.property("modifyAllRecords"), "modifyAllRecords");
+			projections.add(Projections.property("viewAllRecords"), "viewAllRecords");
+			criteria.setProjection(projections);
+			criteria.add(Restrictions.like("object", key));
+			criteria.addOrder(Order.asc("profile"));
+			criteria.setResultTransformer(Transformers.aliasToBean(ObjectPermissionEntity.class));
+			entities = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return entities;
+	}
+	
 }

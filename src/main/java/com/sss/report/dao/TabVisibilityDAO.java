@@ -99,5 +99,35 @@ public class TabVisibilityDAO   {
 		}
 		return distinct;
 	}
+	
+	public List<TabVisibilityEntity> findByKeyProperty(String key) {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<TabVisibilityEntity> entities = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(TabVisibilityEntity.class);
+			ProjectionList projections = Projections.projectionList();
+			projections.add(Projections.property("profile"), "profile");
+			projections.add(Projections.property("visibility"), "visibility");
+			criteria.setProjection(projections);
+			criteria.add(Restrictions.like("tab", key));
+			criteria.addOrder(Order.asc("profile"));
+			criteria.setResultTransformer(Transformers.aliasToBean(TabVisibilityEntity.class));
+			entities = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return entities;
+	}
 
 }

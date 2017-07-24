@@ -2,6 +2,10 @@ select this_.apexClass as y0_, this_.enabled as y1_ from class_accesses this_ wh
 
 select * from CLASS_ACCESSES;
 
+select distinct apexclass from CLASS_ACCESSES order by apexclass;
+
+select profile, enabled from CLASS_ACCESSES where apexclass like '%AEAckDetailPageControllerTest%' order by profile asc;
+
 select layout, coalesce (recordtype,'') as recordtype from LAYOUT_ASSIGNMENTS;
 
 select layout, recordtype from LAYOUT_ASSIGNMENTS;

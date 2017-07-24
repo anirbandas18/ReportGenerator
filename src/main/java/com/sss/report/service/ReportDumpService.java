@@ -21,6 +21,7 @@ public class ReportDumpService {
 	private List<Class<?>> repositoryList;
 	private static final String FIND_BY_PROFILE = "findByProfile";
 	private static final String SQL_LIKE_SPECIFIER = "%";
+	private static final String FIND_UNIQUE_PROPERTY_KEYS = "findAllDistinct";
 	
 	public ReportDumpService(ReportMetadata reportMetadata) {
 		super();
@@ -92,6 +93,21 @@ public class ReportDumpService {
 		}
 		Long end = System.currentTimeMillis();
 		System.out.println(noOfReports + " reports dumped at " + reportMetadata.getReportDumpLocation() + " in " + Utility.milisecondsToSeconds(end - start) + " seconds");
+	}
+	
+	private Integer properties(String propertyName) throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException, IOException, ClassNotFoundException {
+		ProfileMetadata profileMetadata = reportMetadata.getProfileMetadata();
+		String parentReportDumpLocationForProperty = createDirectories(propertyName);
+		int noOfReports = 0;
+		int index = Utility.searchRepositories(repositoryList, propertyName);
+		Class<?> daoClass = repositoryList.get(index);
+		Object dao = daoClass.newInstance();
+		Method findUniqueKeysOfProperty = daoClass.getDeclaredMethod(FIND_UNIQUE_PROPERTY_KEYS);
+		List<String> propertyKeys = (List<String>) findUniqueKeysOfProperty.invoke(dao);
+		for(String key : propertyKeys) {
+			
+		}
+		return noOfReports;
 	}
 	
 }

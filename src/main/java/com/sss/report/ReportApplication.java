@@ -1,6 +1,7 @@
  package com.sss.report;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 import com.sss.report.core.tags.Mode;
@@ -27,6 +28,7 @@ public class ReportApplication {
 		Utility.configure();
 		String childDirName = args[1].substring(args[1].lastIndexOf(File.pathSeparatorChar) + 1);
 		Preferences registry = Preferences.userNodeForPackage(ReportApplication.class);
+		System.out.println(Arrays.toString(registry.keys()));
 		Boolean shouldProcess = registry.getBoolean(childDirName, true);
 		HibernateUtil.start(shouldProcess);
 		XMLService xmlService = new XMLService(args[1]);
