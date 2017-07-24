@@ -35,16 +35,9 @@ public class ReportApplication {
 		reportMetadata.setMode(Mode.valueOf(args[0]));
 		reportMetadata.setProfileMetadata(profileMetadata);
 		reportMetadata.setReportDumpLocation(args[2]);
-		System.out.println(reportMetadata);
+		// System.out.println(reportMetadata);
 		ReportDumpService reportDump = new ReportDumpService(reportMetadata);
-		reportDump.process(reportMetadata);
-		/*ReportService reportService = new ReportService(args[0], args[2], profileSet);
-		ExecutorService threadPool = Executors.newSingleThreadExecutor();
-		FutureTask<String> reportTask = new FutureTask<String>(reportService);
-		threadPool.submit(reportTask);
-		String reportLocationOnMode = reportTask.get();
-		threadPool.shutdown();
-		System.out.println(reportLocationOnMode);*/
+		reportDump.generate(reportMetadata);
 		registry.putBoolean(args[1], false);
 		HibernateUtil.shutdown();
 	}
