@@ -39,7 +39,7 @@ public class ReportApplication {
 		reportMetadata.setReportDumpLocation(args[2]);
 		 System.out.println(reportMetadata);
 		ReportDumpService reportDump = new ReportDumpService(reportMetadata);
-		reportDump.generate(reportMetadata);
+		reportDump.dump(reportMetadata);
 		registry.putBoolean(args[1], false);
 		HibernateUtil.shutdown();
 	}

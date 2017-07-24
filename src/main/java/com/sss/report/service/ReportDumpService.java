@@ -22,6 +22,7 @@ public class ReportDumpService {
 	private static final String FIND_BY_PROFILE = "findByProfile";
 	private static final String SQL_LIKE_SPECIFIER = "%";
 	private static final String FIND_UNIQUE_PROPERTY_KEYS = "findAllDistinct";
+	private static final String FIND_BY_PROPERT_KEY = "findByKeyProperty";
 	
 	public ReportDumpService(ReportMetadata reportMetadata) {
 		super();
@@ -78,7 +79,7 @@ public class ReportDumpService {
 		return noOfReports;
 	}
 	
-	public void generate(ReportMetadata reportMetadata) throws Exception {
+	public void dump(ReportMetadata reportMetadata) throws Exception {
 		ProfileMetadata profileMetadata = reportMetadata.getProfileMetadata();
 		Long start = System.currentTimeMillis();
 		int noOfReports = 0;
@@ -87,7 +88,8 @@ public class ReportDumpService {
 			case profile : 
 				noOfReports = noOfReports + profile(propertyName);
 				break;
-			case properties : // 
+			case properties : 
+				noOfReports = noOfReports + properties(propertyName);
 				break;
 			}
 		}
@@ -95,8 +97,8 @@ public class ReportDumpService {
 		System.out.println(noOfReports + " reports dumped at " + reportMetadata.getReportDumpLocation() + " in " + Utility.milisecondsToSeconds(end - start) + " seconds");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Integer properties(String propertyName) throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException, IOException, ClassNotFoundException {
-		ProfileMetadata profileMetadata = reportMetadata.getProfileMetadata();
 		String parentReportDumpLocationForProperty = createDirectories(propertyName);
 		int noOfReports = 0;
 		int index = Utility.searchRepositories(repositoryList, propertyName);
@@ -105,7 +107,19 @@ public class ReportDumpService {
 		Method findUniqueKeysOfProperty = daoClass.getDeclaredMethod(FIND_UNIQUE_PROPERTY_KEYS);
 		List<String> propertyKeys = (List<String>) findUniqueKeysOfProperty.invoke(dao);
 		for(String key : propertyKeys) {
-			
+			String reportName = key + Utility.CSV_EXTENSION;
+			Path reportLocationForProfile = Paths.get(parentReportDumpLocationForProperty, reportName);
+			Long start = System.currentTimeMillis();
+			Method findByKeyProperty = daoClass.getDeclaredMethod(FIND_BY_PROPERT_KEY, String.class);
+			String param = SQL_LIKE_SPECIFIER + key + SQL_LIKE_SPECIFIER;
+			List<Class<? extends ProfileEntity>> entities = (List<Class<? extends ProfileEntity>>) findByKeyProperty.invoke(dao, param);
+			String content = csv(key, entities);
+			byte[] bytes = content.getBytes();
+			reportLocationForProfile = Files.write(reportLocationForProfile, bytes);
+			Long end = System.currentTimeMillis();
+			Long duration = end - start;
+			noOfReports++;
+			System.out.println(reportLocationForProfile.toString() + " of size " + Utility.humanReadableByteCount(Utility.bytesToLong(bytes)) + " generated in " + Utility.milisecondsToSeconds(duration) + " seconds");
 		}
 		return noOfReports;
 	}
