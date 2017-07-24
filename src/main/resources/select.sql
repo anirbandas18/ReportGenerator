@@ -1,4 +1,12 @@
+select this_.apexClass as y0_, this_.enabled as y1_ from class_accesses this_ where this_.profile like '%2_1 - Inside Sales - Sales Insight%' order by y0_ asc;
+
 select * from CLASS_ACCESSES;
+
+select layout, coalesce (recordtype,'') as recordtype from LAYOUT_ASSIGNMENTS;
+
+select layout, recordtype from LAYOUT_ASSIGNMENTS;
+
+select * from RECORD_TYPE_VISIBILITIES;
 
 select * from FIELD_PERMISSIONS;
 

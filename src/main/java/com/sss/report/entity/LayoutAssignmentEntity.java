@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "layout_assignments")
 public class LayoutAssignmentEntity extends ProfileEntity{
@@ -22,6 +24,7 @@ public class LayoutAssignmentEntity extends ProfileEntity{
 	public String toString() {
 		return "recordType=" + recordType;
 	}
+	@Key(name = "layout")
 	private String layout;
 	private String recordType;
 	public String getLayout() {

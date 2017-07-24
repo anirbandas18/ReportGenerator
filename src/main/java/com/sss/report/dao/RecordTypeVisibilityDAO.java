@@ -14,9 +14,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
-import com.sss.report.core.DAO;
-import com.sss.report.core.HibernateUtil;
-import com.sss.report.entity.RecordTypeVisibilityEntity;;
+import com.sss.report.core.tags.DAO;
+import com.sss.report.entity.RecordTypeVisibilityEntity;
+import com.sss.report.util.HibernateUtil;;
 
 @DAO(forEntity = RecordTypeVisibilityEntity.class)
 public class RecordTypeVisibilityDAO   {
@@ -54,7 +54,6 @@ public class RecordTypeVisibilityDAO   {
 			ProjectionList projections = Projections.projectionList();
 			projections.add(Projections.property("default_"), "default_");
 			projections.add(Projections.property("visible"), "visible");
-			projections.add(Projections.property("personAccountDefault"), "personAccountDefault");
 			projections.add(Projections.property("recordType"), "recordType");
 			criteria.setProjection(projections);
 			criteria.add(Restrictions.like("profile", profileName));
@@ -75,5 +74,30 @@ public class RecordTypeVisibilityDAO   {
 		return entities;
 	}
 	
-	
+	public List<String> findAllDistinct() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<String> distinct = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(RecordTypeVisibilityEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("recordType"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("recordType"));
+			distinct = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return distinct;
+	}
 }

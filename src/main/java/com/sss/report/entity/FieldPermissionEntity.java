@@ -6,10 +6,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "field_permissions")
 public class FieldPermissionEntity  extends ProfileEntity{
 	private Boolean editable;
+	@Key(name = "field")
 	private String field;
 	private Boolean readable;
 	@Id

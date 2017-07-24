@@ -1,0 +1,5 @@
+,Standard
+Opportunity-Opportunity IP,recordType=Opportunity.IP
+Opportunity-Opportunity Main,recordType=Opportunity.SW_HW
+OpportunityLineItem-Opportunity Product Layout,recordType=
+Opportunity_Category__c-Opportunity Category Layout,recordType=

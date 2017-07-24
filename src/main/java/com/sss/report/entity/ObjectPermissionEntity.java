@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "object_permissions")
 public class ObjectPermissionEntity extends ProfileEntity{
@@ -21,14 +23,15 @@ public class ObjectPermissionEntity extends ProfileEntity{
 	@Override
 	public String toString() {
 		return "allowCreate=" + allowCreate + "/allowRead=" + allowRead + "/allowEdit=" + allowEdit + "/allowDelete="
-				+ allowDelete + "/modifyRecords=" + modifyRecords + "/viewAllrecords=" + viewAllrecords;
+				+ allowDelete + "/modifyAllRecords=" + modifyAllRecords + "/viewAllrecords=" + viewAllRecords;
 	}
 	private Boolean allowCreate;
 	private Boolean allowRead;
 	private Boolean allowEdit;
 	private Boolean allowDelete;
-	private Boolean modifyRecords;
-	private Boolean viewAllrecords;
+	private Boolean modifyAllRecords;
+	private Boolean viewAllRecords;
+	@Key(name = "object")
 	private String object;
 	public Boolean getAllowCreate() {
 		return allowCreate;
@@ -54,17 +57,17 @@ public class ObjectPermissionEntity extends ProfileEntity{
 	public void setAllowDelete(Boolean allowDelete) {
 		this.allowDelete = allowDelete;
 	}
-	public Boolean getModifyRecords() {
-		return modifyRecords;
+	public Boolean getModifyAllRecords() {
+		return modifyAllRecords;
 	}
-	public void setModifyRecords(Boolean modifyRecords) {
-		this.modifyRecords = modifyRecords;
+	public void setModifyAllRecords(Boolean modifyAllRecords) {
+		this.modifyAllRecords = modifyAllRecords;
 	}
-	public Boolean getViewAllrecords() {
-		return viewAllrecords;
+	public Boolean getViewAllRecords() {
+		return viewAllRecords;
 	}
-	public void setViewAllrecords(Boolean viewAllrecords) {
-		this.viewAllrecords = viewAllrecords;
+	public void setViewAllRecords(Boolean viewAllRecords) {
+		this.viewAllRecords = viewAllRecords;
 	}
 	public String getObject() {
 		return object;

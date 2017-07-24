@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "page_accesses")
 public class PageAccessEntity extends ProfileEntity{
@@ -18,6 +20,7 @@ public class PageAccessEntity extends ProfileEntity{
 	public void setId(Integer id) {
 		this.id = id;
 	}
+	@Key(name = "apexPage")
 	private String apexPage;
 	private String enabled;
 	public String getApexPage() {

@@ -1,4 +1,4 @@
-package com.sss.report.core;
+package com.sss.report.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import javax.persistence.Table;
+
+import org.reflections.Reflections;
+
+import com.sss.report.core.tags.DAO;
+import com.sss.report.core.tags.Key;
+import com.sss.report.entity.ProfileEntity;
 
 public class Utility {
 
@@ -127,6 +137,105 @@ public class Utility {
 		String tokens[] = name.split(TABLE_NAME_SEPARATOR);
 		String formattedName = String.join("", tokens);
 		return formattedName;
+	}
+	
+	private static List<Class<? extends ProfileEntity>> entityClassList;
+	private static List<Class<?>> repositoryClassList;
+	private static final String basePackageOfEntities = "com.sss.report.entity";
+	private static final String basePackageOfRepositories = "com.sss.report.dao";
+	
+	
+	public static List<Class<? extends ProfileEntity>> getEntityClassList() {
+		return entityClassList;
+	}
+
+	public static List<Class<?>> getRepositoryClassList() {
+		return repositoryClassList;
+	}
+	
+	public static void configure() {
+		System.setProperty("derby.system.home", System.getProperty("user.dir"));
+		System.out.println(System.getProperty("derby.system.home"));
+		Reflections entityPackage = new Reflections(basePackageOfEntities);
+		entityClassList = new ArrayList<>(entityPackage.getSubTypesOf(ProfileEntity.class));
+		Collections.sort(entityClassList, classComparator);
+		Reflections repositoryPackage = new Reflections(basePackageOfRepositories);
+		repositoryClassList = new ArrayList<>(repositoryPackage.getTypesAnnotatedWith(DAO.class));
+		Collections.sort(repositoryClassList, classComparator);
+	}
+	
+	
+	private static Comparator<Class<?>> classComparator = new Comparator<Class<?>>() {
+
+		@Override
+		public int compare(Class<?> o1, Class<?> o2) {
+			String simpleName1 = o1.getSimpleName();
+			String simpleName2 = o2.getSimpleName();
+			return simpleName1.compareTo(simpleName2);
+		}
+		
+	};
+
+	
+	public static String getKeyNameFromEntity(Object entity) throws IllegalArgumentException, IllegalAccessException {
+		String name = "";
+		Class<?> entityClass = entity.getClass();
+		List<Field> declaredFields = new ArrayList<>(Arrays.asList(entityClass.getDeclaredFields()));
+		Field field = declaredFields.stream().filter(f -> f.isAnnotationPresent(Key.class)).findAny().orElse(null);
+		if(field != null) {
+			field.setAccessible(true);
+			name = (String) field.get(entity);
+			field.setAccessible(false);
+		}
+		return name;
+	}
+	
+	public static Integer searchEntities(List<Class<? extends ProfileEntity>> list, String item) throws InstantiationException, IllegalAccessException {
+		Integer low = 0;
+		Integer high = list.size() - 1;
+		Integer position = -1;
+		item = item.toLowerCase();
+		while (low <= high) {
+			Integer mid = (high + low) / 2;
+			Class<? extends ProfileEntity> midElement = list.get(mid);
+			Table annotation = midElement.getDeclaredAnnotation(Table.class);
+			String formattedTableName = Utility.formatTableName(annotation.name());
+			if (formattedTableName.compareTo(item) == 0) {
+				position = mid;
+				//propertyNames.add(item);
+				break;
+			} else if (formattedTableName.compareTo(item) > 0) {
+				high = mid - 1;
+			} else if (formattedTableName.compareTo(item) < 0) {
+				low = mid + 1;
+			}
+		}
+		return position;
+	}
+
+	public static Integer searchRepositories(List<Class<?>> list, String item)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Integer low = 0;
+		Integer high = list.size() - 1;
+		Integer position = -1;
+		item = item.toLowerCase();
+		while (low <= high) {
+			Integer mid = (high + low) / 2;
+			Class<?> midElement = list.get(mid);
+			DAO dao = midElement.getDeclaredAnnotation(DAO.class);
+			Class<? extends ProfileEntity> entity = dao.forEntity();
+			Table annotation = entity.getDeclaredAnnotation(Table.class);
+			String formattedTableName = Utility.formatTableName(annotation.name());
+			if (formattedTableName.compareTo(item) == 0) {
+				position = mid;
+				break;
+			} else if (formattedTableName.compareTo(item) > 0) {
+				high = mid - 1;
+			} else if (formattedTableName.compareTo(item) < 0) {
+				low = mid + 1;
+			}
+		}
+		return position;
 	}
 
 }

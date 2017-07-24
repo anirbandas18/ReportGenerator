@@ -14,9 +14,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
-import com.sss.report.core.DAO;
-import com.sss.report.core.HibernateUtil;
+import com.sss.report.core.tags.DAO;
 import com.sss.report.entity.ObjectPermissionEntity;
+import com.sss.report.util.HibernateUtil;
 
 @DAO(forEntity = ObjectPermissionEntity.class)
 public class ObjectPermissionDAO   {
@@ -56,7 +56,7 @@ public class ObjectPermissionDAO   {
 			projections.add(Projections.property("allowRead"), "allowRead");
 			projections.add(Projections.property("allowEdit"), "allowEdit");
 			projections.add(Projections.property("allowDelete"), "allowDelete");
-			projections.add(Projections.property("modifyRecords"), "modifyRecords");
+			projections.add(Projections.property("modifyAllRecords"), "modifyAllRecords");
 			projections.add(Projections.property("viewAllRecords"), "viewAllRecords");
 			projections.add(Projections.property("object"), "object");
 			criteria.setProjection(projections);
@@ -78,4 +78,30 @@ public class ObjectPermissionDAO   {
 		return entities;
 	}
 	
+	public List<String> findAllDistinct() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<String> distinct = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(ObjectPermissionEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("object"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("object"));
+			distinct = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return distinct;
+	}
 }

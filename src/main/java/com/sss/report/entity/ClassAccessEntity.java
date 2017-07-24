@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.sss.report.core.tags.Key;
 @Entity
 @Table(name = "class_accesses")
 public class ClassAccessEntity extends ProfileEntity {
@@ -18,7 +20,7 @@ public class ClassAccessEntity extends ProfileEntity {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+	@Key(name = "apexClass")
 	private String apexClass;
 	private Boolean enabled;
 	

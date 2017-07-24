@@ -1,4 +1,4 @@
-package com.sss.report.core;
+package com.sss.report.util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -17,7 +17,7 @@ public class HibernateUtil {
 
 	public static void start(Boolean createDB) {
 		HibernateUtil.createDB = createDB;
-		String hibernateConfigFilePath = "hibernate-derby-create.cfg.xml";// "hibernate-mysql.cfg.xml"  "hibernate-derby-create.cfg.xml";
+		String hibernateConfigFilePath = "hibernate-derby-start.cfg.xml";// "hibernate-mysql.cfg.xml"  "hibernate-derby-start.cfg.xml";
 		System.out.println("Creating database from : " + hibernateConfigFilePath);
 		buildSessionFactory(hibernateConfigFilePath);
 	}

@@ -14,9 +14,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
-import com.sss.report.core.DAO;
-import com.sss.report.core.HibernateUtil;
-import com.sss.report.entity.PageAccessEntity;;
+import com.sss.report.core.tags.DAO;
+import com.sss.report.entity.PageAccessEntity;
+import com.sss.report.util.HibernateUtil;;
 
 @DAO(forEntity = PageAccessEntity.class)
 public class PageAccessDAO   {
@@ -72,6 +72,33 @@ public class PageAccessDAO   {
 			}
 		}
 		return entities;
+	}
+	
+	public List<String> findAllDistinct() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<String> distinct = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(PageAccessEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("apexPage"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("apexPage"));
+			distinct = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return distinct;
 	}
 	
 }

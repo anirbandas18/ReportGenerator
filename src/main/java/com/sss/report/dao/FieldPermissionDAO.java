@@ -14,9 +14,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
-import com.sss.report.core.DAO;
-import com.sss.report.core.HibernateUtil;
+import com.sss.report.core.tags.DAO;
 import com.sss.report.entity.FieldPermissionEntity;
+import com.sss.report.util.HibernateUtil;
 
 @DAO(forEntity = FieldPermissionEntity.class)
 public class FieldPermissionDAO  {
@@ -73,5 +73,33 @@ public class FieldPermissionDAO  {
 		}
 		return entities;
 	}
+	
+	public List<String> findAllDistinct() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<String> distinct = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(FieldPermissionEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("field"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("field"));
+			distinct = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return distinct;
+	}
+	
 	
 }

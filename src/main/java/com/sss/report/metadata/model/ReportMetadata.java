@@ -1,14 +1,16 @@
-package com.sss.report.model;
+package com.sss.report.metadata.model;
+
+import com.sss.report.core.tags.Mode;
 
 public class ReportMetadata {
 	
-	private String mode;
+	private Mode mode;
 	private String reportDumpLocation;
 	private ProfileMetadata profileMetadata;
-	public String getMode() {
+	public Mode getMode() {
 		return mode;
 	}
-	public void setMode(String mode) {
+	public void setMode(Mode mode) {
 		this.mode = mode;
 	}
 	public String getReportDumpLocation() {

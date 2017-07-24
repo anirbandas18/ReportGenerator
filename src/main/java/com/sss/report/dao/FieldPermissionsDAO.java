@@ -1,4 +1,4 @@
-package com.sss.report.dao;
+/*package com.sss.report.dao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +18,14 @@ import org.hibernate.transform.Transformers;
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 
-import com.sss.report.core.HibernateUtil;
-import com.sss.report.core.Utility;
+import com.sss.report.entity.FieldPermissionEntity;
 import com.sss.report.entity.FieldPermissionsEntity;
+import com.sss.report.util.HibernateUtil;
+import com.sss.report.util.Utility;
 
 public class FieldPermissionsDAO {
 	
-	public Integer create(FieldPermissionsEntity fieldPermissions) {
+	public Integer create(FieldPermissionEntity fieldPermissions) {
 		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
 		Session session = sessionfactory.getCurrentSession();
 		Transaction tx = null;
@@ -84,6 +85,7 @@ public class FieldPermissionsDAO {
 			tx = session.beginTransaction();
 			Criteria criteria = session.createCriteria(FieldPermissionsEntity.class);
 			ProjectionList projList = Projections.projectionList();
+			//  NULLIF(V1,V2)
 			String sql = "substr(profile, 1, locate('" + Utility.PROFILE_EXTENSION + "', profile) - 1) as profile_name";
 			String [] columnAliases = { "profile_name" };
 			Type [] types = { StandardBasicTypes.STRING };
@@ -171,3 +173,4 @@ public class FieldPermissionsDAO {
 		return fieldPermissionsList;
 	}
 }
+*/

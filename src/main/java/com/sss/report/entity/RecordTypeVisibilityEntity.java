@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "record_type_visibilities")    
 public class RecordTypeVisibilityEntity extends ProfileEntity {
@@ -20,15 +22,9 @@ public class RecordTypeVisibilityEntity extends ProfileEntity {
 	}
 	private Boolean default_;
 	private Boolean visible;
+	@Key(name = "recordType")
 	private String recordType;
-	private Boolean personAccountDefault;
 	
-	public Boolean getPersonAccountDefault() {
-		return personAccountDefault;
-	}
-	public void setPersonAccountDefault(Boolean personAccountDefault) {
-		this.personAccountDefault = personAccountDefault;
-	}
 	public Boolean getDefault_() {
 		return default_;
 	}
@@ -49,7 +45,7 @@ public class RecordTypeVisibilityEntity extends ProfileEntity {
 	}
 	@Override
 	public String toString() {
-		return "default=" + default_ + "/visible=" + visible + "/personAccountDefault=" + personAccountDefault;
+		return "default=" + default_ + "/visible=" + visible;
 	}
 	
 	

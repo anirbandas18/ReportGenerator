@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "tab_visibilities")  
 public class TabVisibilityEntity extends ProfileEntity{
@@ -18,6 +20,7 @@ public class TabVisibilityEntity extends ProfileEntity{
 	public void setId(Integer id) {
 		this.id = id;
 	}
+	@Key(name = "tab")
 	private String tab;
 	private String visibility;
 	public String getTab() {

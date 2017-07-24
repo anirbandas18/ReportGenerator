@@ -1,4 +1,4 @@
-package com.sss.report.model;
+package com.sss.report.metadata.model;
 
 import java.util.Set;
 

@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Key;
+
 @Entity
 @Table(name = "user_permissions")
 public class UserPermissionEntity extends ProfileEntity{
@@ -34,6 +36,7 @@ public class UserPermissionEntity extends ProfileEntity{
 	public String toString() {
 		return "enabled=" + enabled;
 	}
+	@Key(name = "name")
 	private String name;
 	private Boolean enabled;
 	

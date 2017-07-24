@@ -13,10 +13,13 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
-import com.sss.report.core.DAO;
-import com.sss.report.core.HibernateUtil;
-import com.sss.report.entity.LayoutAssignmentEntity;;
+import com.sss.report.core.tags.DAO;
+import com.sss.report.entity.FieldPermissionEntity;
+import com.sss.report.entity.LayoutAssignmentEntity;
+import com.sss.report.util.HibernateUtil;;
 
 @DAO(forEntity = LayoutAssignmentEntity.class)
 public class LayoutAssignmentDAO   {
@@ -53,7 +56,10 @@ public class LayoutAssignmentDAO   {
 			Criteria criteria = session.createCriteria(LayoutAssignmentEntity.class);
 			ProjectionList projections = Projections.projectionList();
 			projections.add(Projections.property("layout"), "layout");
-			projections.add(Projections.property("recordType"), "recordType");
+			String sql = "coalesce (recordType, '') as recordType";
+			String [] columnAliases = { "recordType" };
+			Type [] types = { StandardBasicTypes.STRING };
+			projections.add(Projections.sqlProjection(sql, columnAliases, types));
 			criteria.setProjection(projections);
 			criteria.add(Restrictions.like("profile", profileName));
 			criteria.addOrder(Order.asc("layout"));
@@ -71,6 +77,33 @@ public class LayoutAssignmentDAO   {
 			}
 		}
 		return entities;
+	}
+	
+	public List<String> findAllDistinct() {
+		SessionFactory sessionfactory = HibernateUtil.getSessionFactory();
+		Session session = sessionfactory.openSession();
+		Transaction tx = null;
+		List<String> distinct = new ArrayList<>();
+		try {
+			tx = session.beginTransaction();
+			Criteria criteria = session.createCriteria(FieldPermissionEntity.class);
+			ProjectionList projList = Projections.projectionList();
+			projList.add(Projections.property("layout"));
+			criteria.setProjection(Projections.distinct(projList));
+			criteria.addOrder(Order.asc("layout"));
+			distinct = criteria.list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if(session.isOpen()) {
+				session.close();
+			}
+		}
+		return distinct;
 	}
 	
 }

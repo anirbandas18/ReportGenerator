@@ -1,0 +1,3 @@
+,Standard
+APTPS_NDA_TSMC_Access__c,allowCreate=true/allowRead=true/allowEdit=true/allowDelete=false/modifyAllRecords=false/viewAllrecords=false
+APTPS_NDA_User_Source_Code_Access__c,allowCreate=true/allowRead=true/allowEdit=true/allowDelete=false/modifyAllRecords=false/viewAllrecords=false
