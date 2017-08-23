@@ -29,12 +29,14 @@ public class XMLParser implements Callable<Set<String>> {
 	private List<Class<?>> repositoryClassList;
 	private List<Class<? extends ProfileEntity>> entityClassList;
 	private Boolean shouldParse;
+	private Set<String> filter;
 	
 	
-	public XMLParser(Boolean shouldParse, String xmlFilePath) {
+	public XMLParser(Boolean shouldParse, String xmlFilePath, Set<String> filter) {
 		this.xmlFilePath = xmlFilePath;
 		this.propertyNames = new TreeSet<>();
 		this.shouldParse = shouldParse;
+		this.filter = filter;
 	}
 
 	
@@ -58,54 +60,65 @@ public class XMLParser implements Callable<Set<String>> {
 		Integer position = -1;
 		String tagName = "", tagContent = "";
 		Boolean currentTagBelongsToEntity = false;
+		Boolean chosenTag = false;
 		while (xmlStreamReader.hasNext()) {
 			switch (xmlStreamReader.getEventType()) {
 			case XMLStreamReader.START_ELEMENT:
 				tagName = xmlStreamReader.getLocalName();
-				position = Utility.searchEntities(entityClassList, tagName);
-				if (position != -1) {
-					entity = entityClassList.get(position);
-					entityObject = entity.newInstance();
-					propertyNames.add(tagName.toLowerCase());
-				} else {
-					try {
-						entity.getDeclaredField(tagName);
-						currentTagBelongsToEntity = true;
-					} catch (NoSuchFieldException e) {
-						tagName = tagName + FIELD_FORMATTER;
+				if(filter.contains(tagName.toLowerCase()) || filter.isEmpty() || chosenTag) {
+					if(filter.contains(tagName.toLowerCase())) {
+						chosenTag = true;
+					}
+					position = Utility.searchEntities(entityClassList, tagName);
+					if (position != -1) {
+						entity = entityClassList.get(position);
+						entityObject = entity.newInstance();
+						propertyNames.add(tagName.toLowerCase());
+					} else {
 						try {
 							entity.getDeclaredField(tagName);
 							currentTagBelongsToEntity = true;
-						} catch (NoSuchFieldException ex) {
-							// swallow exception for skipping tag
-							currentTagBelongsToEntity = false;
+						} catch (NoSuchFieldException e) {
+							tagName = tagName + FIELD_FORMATTER;
+							try {
+								entity.getDeclaredField(tagName);
+								currentTagBelongsToEntity = true;
+							} catch (NoSuchFieldException ex) {
+								// swallow exception for skipping tag
+								currentTagBelongsToEntity = false;
+							}
 						}
 					}
 				}
 				break;
 			case XMLStreamReader.END_ELEMENT:
 				tagName = xmlStreamReader.getLocalName();
-				position = Utility.searchEntities(entityClassList, tagName);
-				if (position != -1) {
-					position = Utility.searchRepositories(repositoryClassList, tagName);
-					if (position != -1) {
-						String xmlFileName = Utility.getXMLFileName(xmlFilePath);
-						String profileName = Utility.getFileNameWithoutExtension(xmlFileName);
-						Field f = entity.getSuperclass().getDeclaredField(PROFILE_NAME_COLUMN);
-						f.setAccessible(true);
-						f.set(entityObject, profileName);
-						f.setAccessible(false);
-						repository = repositoryClassList.get(position);
-						repositoryObject = repository.newInstance();
-						DAO dao = repository.getDeclaredAnnotation(DAO.class);
-						Method m = repository.getDeclaredMethod(CREATE_ENTITY_METHOD_NAME, dao.forEntity());
-						if(shouldParse) {
-							Object e = m.invoke(repositoryObject, entityObject);
-							System.out.println("Persisted " + e + " " + entityObject.getClass().getSimpleName() + " for " + profileName);
-						}
+				if(filter.contains(tagName.toLowerCase()) || filter.isEmpty() || chosenTag) {
+					position = Utility.searchEntities(entityClassList, tagName);
+					if(filter.contains(tagName.toLowerCase())) {
+						chosenTag = false;
 					}
-				} else {
-					currentTagBelongsToEntity = false;
+					if (position != -1) {
+						position = Utility.searchRepositories(repositoryClassList, tagName);
+						if (position != -1) {
+							String xmlFileName = Utility.getXMLFileName(xmlFilePath);
+							String profileName = Utility.getFileNameWithoutExtension(xmlFileName);
+							Field f = entity.getSuperclass().getDeclaredField(PROFILE_NAME_COLUMN);
+							f.setAccessible(true);
+							f.set(entityObject, profileName);
+							f.setAccessible(false);
+							repository = repositoryClassList.get(position);
+							repositoryObject = repository.newInstance();
+							DAO dao = repository.getDeclaredAnnotation(DAO.class);
+							Method m = repository.getDeclaredMethod(CREATE_ENTITY_METHOD_NAME, dao.forEntity());
+							if(shouldParse) {
+								Object e = m.invoke(repositoryObject, entityObject);
+								System.out.println("Persisted " + e + " " + entityObject.getClass().getSimpleName() + " for " + profileName);
+							}
+						}
+					} else {
+						currentTagBelongsToEntity = false;
+					}
 				}
 				break;
 			case XMLStreamReader.CHARACTERS:
@@ -130,5 +143,5 @@ public class XMLParser implements Callable<Set<String>> {
 		}
 		return propertyNames;
 	}
-
+	
 }

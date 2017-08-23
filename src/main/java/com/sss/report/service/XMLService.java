@@ -27,7 +27,7 @@ public class XMLService {
 		this.xmlRepositoryLocation = xmlRepositoryLocation;
 	}
 
-	public ProfileMetadata parseProfiles(Boolean shouldParse) throws IOException, InterruptedException, ExecutionException, XMLStreamException {
+	public ProfileMetadata parseProfiles(Boolean shouldParse,Set<String> filter) throws IOException, InterruptedException, ExecutionException, XMLStreamException {
 		Set<String> masterProperties = new TreeSet<>();
 		Set<String> profileNames = new TreeSet<>();
 		Path xmlRepositoryPath = Paths.get(xmlRepositoryLocation);
@@ -38,7 +38,7 @@ public class XMLService {
 		Long totalDuration = 0L;
 		for(Path xmlFile : xmlFilesFromRepository) {
 			String xmlFilePath = xmlFile.toString();
-			FutureTask<Set<String>> xmlParsingTask = new FutureTask<>( new XMLParser(shouldParse, xmlFilePath));
+			FutureTask<Set<String>> xmlParsingTask = new FutureTask<>( new XMLParser(shouldParse, xmlFilePath, filter));
 			Long begin = System.currentTimeMillis();
 			System.out.println("Processing : " + Utility.getXMLFileName(xmlFilePath));
 			threadPool.submit(xmlParsingTask);

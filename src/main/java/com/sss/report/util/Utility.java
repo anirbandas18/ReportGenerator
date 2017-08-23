@@ -1,18 +1,19 @@
 package com.sss.report.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.reflections.Reflections;
@@ -29,6 +30,7 @@ public class Utility {
 	public static final String CSV_EXTENSION = ".csv";
 	public static final String FILE_NAME = "fileName";
 	public static final String TABLE_NAME_SEPARATOR = "_";
+	public static final String FIELD_NAME_SEPARATOR = " : ";
 	public static final char FILE_EXTENSION_SEPARATOR = '.';
 
 	public static String getXMLFileName(String xmlFilePath) {
@@ -65,64 +67,6 @@ public class Utility {
 		return csvFileName;
 	}
 
-	public static String getChildDirName(String childDir) {
-		int pos = childDir.lastIndexOf(File.separator);
-		String childDirName = childDir.substring(pos + 1);
-		return childDirName;
-	}
-
-	public static Path createDir(String dirPath) throws IOException {
-		System.out.println(dirPath);
-		Path csvRepositoryDir = Paths.get(dirPath);
-		if (!Files.exists(csvRepositoryDir)) {
-			csvRepositoryDir = Files.createDirectory(csvRepositoryDir);
-		}
-		return csvRepositoryDir;
-	}
-
-	public static boolean isFieldPresent(Object bean, String fieldName, String fieldValue) throws IllegalArgumentException, IllegalAccessException {
-		Class<?> clazz = bean.getClass();
-		boolean flag = true;
-		try {
-			Field f = clazz.getDeclaredField(fieldName);
-			f.setAccessible(true);
-			Object value = f.get(bean);
-			flag = value.equals(fieldValue);
-			f.setAccessible(false);
-		} catch (NoSuchFieldException e) {
-			flag = false;
-		}
-		return flag;
-	}
-	
-	public static Object getSimpleFieldByName(Object bean, String fieldName) throws IllegalArgumentException, IllegalAccessException {
-		Class<?> clazz = bean.getClass();
-		Object value = new Object();
-		try {
-			Field f = clazz.getDeclaredField(fieldName);
-			f.setAccessible(true);
-			value = f.get(bean);
-			f.setAccessible(false);
-		} catch (NoSuchFieldException e) {
-			//value = null;
-		}
-		return value;
-	}
-
-	public static List<Object> getComplexFieldByName(Object bean, String fieldName)
-			throws IllegalArgumentException, IllegalAccessException {
-		Class<?> clazz = bean.getClass();
-		List<Field> f = new ArrayList<Field>(Arrays.asList(clazz.getDeclaredFields()));
-		Field item = f.stream().filter(z -> z.getName().equals(fieldName)).findFirst().orElse(null);
-		List<Object> content = new ArrayList<>();
-		if (item != null) {
-			item.setAccessible(true);
-			content = (List<Object>) item.get(bean);
-			item.setAccessible(false);
-		}
-		return content;
-	}
-
 	public static String getFileNameWithoutExtension(String fullyQualifiedFileName) {
 		String fileNameWithoutExt = fullyQualifiedFileName.substring(0, fullyQualifiedFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR));
 		return fileNameWithoutExt;
@@ -153,7 +97,8 @@ public class Utility {
 		return repositoryClassList;
 	}
 	
-	public static void configure() {
+	public static void configure()
+	{
 		System.setProperty("derby.system.home", System.getProperty("user.dir"));
 		System.out.println(System.getProperty("derby.system.home"));
 		Reflections entityPackage = new Reflections(basePackageOfEntities);
@@ -164,6 +109,14 @@ public class Utility {
 		Collections.sort(repositoryClassList, classComparator);
 	}
 	
+	public static void redirectError(Boolean flag) throws FileNotFoundException {
+		if(flag) {
+			String fileName = String.valueOf(System.currentTimeMillis()) + ".txt";
+			System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream(fileName)), true));
+		} else {
+			System.setErr(System.err);
+		}
+	}
 	
 	private static Comparator<Class<?>> classComparator = new Comparator<Class<?>>() {
 
@@ -177,7 +130,7 @@ public class Utility {
 	};
 
 	
-	public static String getKeyNameFromEntity(Object entity) throws IllegalArgumentException, IllegalAccessException {
+	public static String getKeyPropertyFromEntity(Object entity) throws IllegalArgumentException, IllegalAccessException {
 		String name = "";
 		Class<?> entityClass = entity.getClass();
 		List<Field> declaredFields = new ArrayList<>(Arrays.asList(entityClass.getDeclaredFields()));
@@ -238,4 +191,30 @@ public class Utility {
 		return position;
 	}
 
+	public static String getProfileFromEntity(Object entity) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Class<?> entityClass = entity.getClass();
+		Field f = entityClass.getSuperclass().getDeclaredField(PROFILE_EXTENSION.split("\\.")[1]);
+		f.setAccessible(true);
+		String profileName = (String) f.get(entity);
+		f.setAccessible(false);
+		return profileName;
+	}
+
+	public static String formatEntityMetadata(Object entity) throws IllegalArgumentException, IllegalAccessException {
+		Class<?> entityClass = entity.getClass();
+		Field[] fields = entityClass.getDeclaredFields();
+		String key = getKeyPropertyFromEntity(entity);
+		String formattedMetadata = "";
+		for(Field f : fields) {
+			Boolean isKey = f.isAnnotationPresent(Key.class);
+			Boolean isId = f.isAnnotationPresent(Id.class);
+			if(!(isKey || isId)) {
+				String value = key + FIELD_NAME_SEPARATOR + f.getName();
+				formattedMetadata = formattedMetadata + value + CSV_DELIMITTER;
+			} 
+		}
+		return formattedMetadata;
+	}
+	
 }
+ 

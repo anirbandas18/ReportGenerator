@@ -1,5 +1,13 @@
 select this_.apexClass as y0_, this_.enabled as y1_ from class_accesses this_ where this_.profile like '%2_1 - Inside Sales - Sales Insight%' order by y0_ asc;
 
+select this_.profile as y0_, this_.enabled as y1_ from user_permissions this_ where this_.name like '%DistributeFromPersWksp%' order by y0_ asc;
+
+select * from user_permissions;
+
+select distinct name from USER_PERMISSIONS order by name;
+
+select profile, enabled from CLASS_ACCESSES where apexclass like 'Utils' order by profile;
+
 select * from CLASS_ACCESSES;
 
 select distinct apexclass from CLASS_ACCESSES order by apexclass;

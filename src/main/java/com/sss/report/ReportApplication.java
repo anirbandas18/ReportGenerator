@@ -2,7 +2,10 @@
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import com.sss.report.core.tags.Mode;
 import com.sss.report.metadata.model.ProfileMetadata;
@@ -24,20 +27,24 @@ public class ReportApplication {
 	 */
 	
 	public static void main(String[] args) throws Exception {
-		//System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("output.txt")), true));
 		Utility.configure();
 		String childDirName = args[1].substring(args[1].lastIndexOf(File.pathSeparatorChar) + 1);
 		Preferences registry = Preferences.userNodeForPackage(ReportApplication.class);
 		System.out.println(Arrays.toString(registry.keys()));
 		Boolean shouldProcess = registry.getBoolean(childDirName, true);
 		HibernateUtil.start(shouldProcess);
-		XMLService xmlService = new XMLService(args[1]);
-		ProfileMetadata profileMetadata = xmlService.parseProfiles(shouldProcess);
+		Set<String> filter = new TreeSet<>();
+		if(args.length == 4) {
+			filter.addAll(Arrays.asList(args[3].split(",")).stream().map(x -> x.toLowerCase()).collect(Collectors.toSet()));
+		}
 		ReportMetadata reportMetadata = new ReportMetadata();
 		reportMetadata.setMode(Mode.valueOf(args[0]));
-		reportMetadata.setProfileMetadata(profileMetadata);
 		reportMetadata.setReportDumpLocation(args[2]);
-		 System.out.println(reportMetadata);
+		reportMetadata.setFilter(filter);
+		XMLService xmlService = new XMLService(args[1]);
+		ProfileMetadata profileMetadata = xmlService.parseProfiles(shouldProcess, filter);
+		reportMetadata.setProfileMetadata(profileMetadata);
+		System.out.println(reportMetadata);
 		ReportDumpService reportDump = new ReportDumpService(reportMetadata);
 		reportDump.dump(reportMetadata);
 		registry.putBoolean(args[1], false);

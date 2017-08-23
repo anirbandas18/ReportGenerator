@@ -59,6 +59,7 @@ public class ObjectPermissionDAO   {
 			projections.add(Projections.property("modifyAllRecords"), "modifyAllRecords");
 			projections.add(Projections.property("viewAllRecords"), "viewAllRecords");
 			projections.add(Projections.property("object"), "object");
+			projections.add(Projections.property("profile"), "profile");
 			criteria.setProjection(projections);
 			criteria.add(Restrictions.like("profile", profileName));
 			criteria.addOrder(Order.asc("object"));
