@@ -10,8 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -176,8 +178,12 @@ public class ReportDumpService {
 		List<Class<? extends ProfileEntity>> valueList = profileEntities.values().stream().flatMap(List::stream).collect(Collectors.toList());
 		Set<Class<? extends ProfileEntity>> valueSet = new TreeSet<>(entityComparator);
 		valueSet.addAll(valueList);// using compareTo of parent instead of child
+		Map<String, String> objectFields = new LinkedHashMap<>();
 		for (Object entity : valueSet) {
-			headerLine = headerLine + Utility.formatEntityMetadata(entity);
+			String metadata = Utility.formatEntityMetadata(entity);
+			String key  =metadata.split(Utility.FIELD_NAME_SEPARATOR)[0];
+			headerLine = headerLine + key + Utility.CSV_DELIMITTER;
+			objectFields.put(key, metadata.split(Utility.FIELD_NAME_SEPARATOR)[1]);
 		}
 		headerLine = headerLine.substring(0, headerLine.lastIndexOf(','));
 		bw.write(headerLine);
@@ -188,46 +194,87 @@ public class ReportDumpService {
 			System.err.println(key);
 			int count = 0, n = 0;
 			List<Class<? extends ProfileEntity>> value = profileEntities.get(key);
-			Object x = value.get(0);
+			/*Object x = value.get(0);
 			for (Field f : x.getClass().getDeclaredFields()) {
 				Boolean isKey = f.isAnnotationPresent(Key.class);
 				Boolean isId = f.isAnnotationPresent(Id.class);
-				if (!(isKey || isId)) {
+				Boolean isField = f.isAnnotationPresent(com.sss.report.core.tags.Field.class);
+				if(!(isKey || isId) && isField) {
 					n++;
 				}
-			}
+			}*/			
 			for(Object entity : valueSet) {
 				//System.err.println(entity.toString());
 				if(count < value.size()) {
 					Object item = value.get(count);
 					if(item.equals(entity)) {
-						for (Field f : entity.getClass().getDeclaredFields()) {
+						Map<Character,Character> fieldPositions = new LinkedHashMap<>();
+						String fieldValue = "";
+						Field[] declaredFields = item.getClass().getDeclaredFields();
+						Arrays.sort(declaredFields, Utility.FIELD_COMPARATOR);
+						for (Field f : declaredFields) {
 							Boolean isKey = f.isAnnotationPresent(Key.class);
 							Boolean isId = f.isAnnotationPresent(Id.class);
-							if (!(isKey || isId)) {
+							Boolean isField = f.isAnnotationPresent(com.sss.report.core.tags.Field.class);
+							if(!(isKey || isId) && isField) {
+								com.sss.report.core.tags.Field fTag = f.getAnnotation(com.sss.report.core.tags.Field.class);
+								char c = fTag.name().length() == 0 ? f.getName().charAt(0) : fTag.name().charAt(0);
 								f.setAccessible(true);
-								count++;
+								//count++;
 								if (f.getType() == Boolean.class) {
-									Boolean flag = (Boolean) f.get(entity);
-									line = line + (flag ? "Yes" : "No") + Utility.CSV_DELIMITTER;
+									Boolean flag = (Boolean) f.get(item);
+									if(flag) {
+										int ascii = c;
+										if(ascii >= 97 && ascii <= 122) {
+											ascii = ascii - 32;
+										}
+										fieldPositions.put(c, (char)ascii);
+									} else {
+										fieldPositions.put(c,'N');
+									}
+									//line = line + (flag ? "Yes" : "No") + Utility.CSV_DELIMITTER;
 								} else {
-									line = line + f.get(entity) + Utility.CSV_DELIMITTER;
+									Object y = f.get(entity);
+									fieldPositions.put(c,y.toString().charAt(0));
+									//line = line + f.get(entity) + Utility.CSV_DELIMITTER;
 								}
-								System.err.print(f.getName() + "=" + f.get(entity) + ",");
+								//System.err.print(f.getName() + "=" + f.get(entity) + ",");
+								//System.err.println(fieldPositions);
 								f.setAccessible(false);
 							} else if(isKey) {
 								f.setAccessible(true);
-								System.err.print(f.getName() + "=" + f.get(entity) + ",");
+								Object fieldKey = f.get(item);
+								System.err.print(f.getName() + "=" + fieldKey + ",");
+								fieldValue = objectFields.get(fieldKey.toString());
 								f.setAccessible(false);
 							}
 						}
+						if(fieldValue.length() > fieldPositions.size()) {
+							for(char c : fieldValue.toCharArray()) {
+								if(!fieldPositions.containsKey(c)) {
+									fieldPositions.put(c, '-');
+								}
+							}
+						}
+						Collection<Character> z = fieldPositions.values();
+						String _z = z.toString();
+						_z = _z.replaceAll(",", "");
+						_z  =_z.replaceAll("\\s+","");
+						_z  =_z.substring(1, _z.length() - 1);
+						line = line + _z + Utility.CSV_DELIMITTER;
+						System.err.println(line);
 						System.err.println();
 						count++;
 					} else {
-						line = line + String.join("", Collections.nCopies(n, Utility.CSV_DELIMITTER));
+						//line = line + Utility.CSV_DELIMITTER;
+						String metadata = Utility.formatEntityMetadata(entity);
+						String v = objectFields.get(metadata.split(Utility.FIELD_NAME_SEPARATOR)[0]);
+						line = line + String.join("", Collections.nCopies(v.length(), "-")) + Utility.CSV_DELIMITTER;// old has n
 					} 
 				} else {
-					line = line + String.join("", Collections.nCopies(n, Utility.CSV_DELIMITTER));
+					String metadata = Utility.formatEntityMetadata(entity);
+					String v = objectFields.get(metadata.split(Utility.FIELD_NAME_SEPARATOR)[0]);
+					line = line + String.join("", Collections.nCopies(v.length(), "-")) + Utility.CSV_DELIMITTER;// old has n
 				}
 			}
 			System.err.println(count);

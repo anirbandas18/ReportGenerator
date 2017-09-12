@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Field;
 import com.sss.report.core.tags.Key;
 
 @Entity
@@ -29,11 +30,17 @@ public class ObjectPermissionEntity extends ProfileEntity {
 				+ allowDelete + "/modifyAllRecords=" + modifyAllRecords + "/viewAllrecords=" + viewAllRecords + "]";
 	}
 
+	@Field(name = "create")
 	private Boolean allowCreate;
+	@Field(name = "read")
 	private Boolean allowRead;
+	@Field(name = "edit")
 	private Boolean allowEdit;
+	@Field(name = "delete")
 	private Boolean allowDelete;
+	@Field
 	private Boolean modifyAllRecords;
+	@Field
 	private Boolean viewAllRecords;
 	@Key(name = "object")
 	private String object;

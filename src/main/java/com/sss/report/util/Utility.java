@@ -87,6 +87,15 @@ public class Utility {
 	private static List<Class<?>> repositoryClassList;
 	private static final String basePackageOfEntities = "com.sss.report.entity";
 	private static final String basePackageOfRepositories = "com.sss.report.dao";
+	public static final Comparator<Field> FIELD_COMPARATOR = new Comparator<Field> () {
+
+			@Override
+			public int compare(Field o1, Field o2) {
+				// TODO Auto-generated method stub
+				return o1.getName().compareTo(o2.getName());
+			}
+			
+		};
 	
 	
 	public static List<Class<? extends ProfileEntity>> getEntityClassList() {
@@ -199,8 +208,8 @@ public class Utility {
 		f.setAccessible(false);
 		return profileName;
 	}
-
-	public static String formatEntityMetadata(Object entity) throws IllegalArgumentException, IllegalAccessException {
+	// old v1.0
+	/*public static String formatEntityMetadata(Object entity) throws IllegalArgumentException, IllegalAccessException {
 		Class<?> entityClass = entity.getClass();
 		Field[] fields = entityClass.getDeclaredFields();
 		String key = getKeyPropertyFromEntity(entity);
@@ -211,6 +220,25 @@ public class Utility {
 			if(!(isKey || isId)) {
 				String value = key + FIELD_NAME_SEPARATOR + f.getName();
 				formattedMetadata = formattedMetadata + value + CSV_DELIMITTER;
+			} 
+		}
+		return formattedMetadata;
+	}*/
+	
+	// new v1.1
+	public static String formatEntityMetadata(Object entity) throws IllegalArgumentException, IllegalAccessException {
+		Class<?> entityClass = entity.getClass();
+		Field[] fields = entityClass.getDeclaredFields();
+		Arrays.sort(fields, FIELD_COMPARATOR);
+		String formattedMetadata = getKeyPropertyFromEntity(entity) + FIELD_NAME_SEPARATOR;
+		for(Field f : fields) {
+			Boolean isKey = f.isAnnotationPresent(Key.class);
+			Boolean isId = f.isAnnotationPresent(Id.class);
+			Boolean isField = f.isAnnotationPresent(com.sss.report.core.tags.Field.class);
+			if(!(isKey || isId) && isField) {
+				com.sss.report.core.tags.Field fTag = f.getAnnotation(com.sss.report.core.tags.Field.class);
+				char value = fTag.name().length() == 0 ? f.getName().charAt(0) : fTag.name().charAt(0);
+				formattedMetadata = formattedMetadata + value;
 			} 
 		}
 		return formattedMetadata;
