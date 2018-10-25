@@ -2,8 +2,11 @@ package com.sss.report.metadata.model;
 
 import java.util.Set;
 
+import org.springframework.stereotype.Component;
+
 import com.sss.report.core.tags.Mode;
 
+@Component
 public class ReportMetadata {
 	
 	private Set<String> filter;

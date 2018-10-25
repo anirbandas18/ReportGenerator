@@ -1,3 +1,2 @@
-,Standard
-APTPS_NDA_TSMC_Access__c,allowCreate=true/allowRead=true/allowEdit=true/allowDelete=false/modifyAllRecords=false/viewAllrecords=false
-APTPS_NDA_User_Source_Code_Access__c,allowCreate=true/allowRead=true/allowEdit=true/allowDelete=false/modifyAllRecords=false/viewAllrecords=false
+Profile NameSorted Ascending,APTPS_NDA_TSMC_Access__c : allowCreate,APTPS_NDA_TSMC_Access__c : allowRead,APTPS_NDA_TSMC_Access__c : allowEdit,APTPS_NDA_TSMC_Access__c : allowDelete,APTPS_NDA_TSMC_Access__c : modifyAllRecords,APTPS_NDA_TSMC_Access__c : viewAllRecords,APTPS_NDA_User_Source_Code_Access__c : allowCreate,APTPS_NDA_User_Source_Code_Access__c : allowRead,APTPS_NDA_User_Source_Code_Access__c : allowEdit,APTPS_NDA_User_Source_Code_Access__c : allowDelete,APTPS_NDA_User_Source_Code_Access__c : modifyAllRecords,APTPS_NDA_User_Source_Code_Access__c : viewAllRecords
+Standard,Yes,Yes,Yes,No,No,No,Yes,Yes,Yes,No,No,No

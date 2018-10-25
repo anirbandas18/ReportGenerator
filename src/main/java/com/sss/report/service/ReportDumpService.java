@@ -193,22 +193,13 @@ public class ReportDumpService {
 			String line = key + Utility.CSV_DELIMITTER;
 			System.err.println(key);
 			int count = 0, n = 0;
-			List<Class<? extends ProfileEntity>> value = profileEntities.get(key);
-			/*Object x = value.get(0);
-			for (Field f : x.getClass().getDeclaredFields()) {
-				Boolean isKey = f.isAnnotationPresent(Key.class);
-				Boolean isId = f.isAnnotationPresent(Id.class);
-				Boolean isField = f.isAnnotationPresent(com.sss.report.core.tags.Field.class);
-				if(!(isKey || isId) && isField) {
-					n++;
-				}
-			}*/			
+			List<Class<? extends ProfileEntity>> value = profileEntities.get(key);		
 			for(Object entity : valueSet) {
 				//System.err.println(entity.toString());
 				if(count < value.size()) {
 					Object item = value.get(count);
 					if(item.equals(entity)) {
-						Map<Character,Character> fieldPositions = new LinkedHashMap<>();
+						Map<String,String> fieldPositions = new LinkedHashMap<>();
 						String fieldValue = "";
 						Field[] declaredFields = item.getClass().getDeclaredFields();
 						Arrays.sort(declaredFields, Utility.FIELD_COMPARATOR);
@@ -218,24 +209,39 @@ public class ReportDumpService {
 							Boolean isField = f.isAnnotationPresent(com.sss.report.core.tags.Field.class);
 							if(!(isKey || isId) && isField) {
 								com.sss.report.core.tags.Field fTag = f.getAnnotation(com.sss.report.core.tags.Field.class);
-								char c = fTag.name().length() == 0 ? f.getName().charAt(0) : fTag.name().charAt(0);
+								boolean isShort = fTag.isShort();
+								// : (f.getName());
+								String c = "";
+								if(isShort) {
+									c = Character.toString(fTag.name().length() == 0 ? f.getName().charAt(0) : fTag.name().charAt(0));
+								} else {
+									if(fTag.name().length() == 0) {
+										c = f.getName();
+									} else {
+										c = fTag.name();
+									}
+								}
 								f.setAccessible(true);
 								//count++;
 								if (f.getType() == Boolean.class) {
 									Boolean flag = (Boolean) f.get(item);
 									if(flag) {
-										int ascii = c;
+										int ascii = c.charAt(0);
 										if(ascii >= 97 && ascii <= 122) {
 											ascii = ascii - 32;
 										}
-										fieldPositions.put(c, (char)ascii);
+										fieldPositions.put(c, Character.toString((char)ascii));
 									} else {
-										fieldPositions.put(c,'N');
+										fieldPositions.put(c,"-");
 									}
 									//line = line + (flag ? "Yes" : "No") + Utility.CSV_DELIMITTER;
 								} else {
 									Object y = f.get(entity);
-									fieldPositions.put(c,y.toString().charAt(0));
+									String w = "-";
+									if(y.toString().length() != 0) {
+										w = isShort ? y.toString().substring(0, 1) : y.toString();
+									}
+									fieldPositions.put(c, w);
 									//line = line + f.get(entity) + Utility.CSV_DELIMITTER;
 								}
 								//System.err.print(f.getName() + "=" + f.get(entity) + ",");
@@ -244,26 +250,27 @@ public class ReportDumpService {
 							} else if(isKey) {
 								f.setAccessible(true);
 								Object fieldKey = f.get(item);
-								System.err.print(f.getName() + "=" + fieldKey + ",");
+								//System.err.print(f.getName() + "=" + fieldKey + ",");
 								fieldValue = objectFields.get(fieldKey.toString());
 								f.setAccessible(false);
 							}
 						}
 						if(fieldValue.length() > fieldPositions.size()) {
-							for(char c : fieldValue.toCharArray()) {
+							for(String c : fieldValue.split("")) {
 								if(!fieldPositions.containsKey(c)) {
-									fieldPositions.put(c, '-');
+									fieldPositions.put(c, "-");
 								}
 							}
 						}
-						Collection<Character> z = fieldPositions.values();
+						Collection<String> z = fieldPositions.values();
 						String _z = z.toString();
 						_z = _z.replaceAll(",", "");
 						_z  =_z.replaceAll("\\s+","");
 						_z  =_z.substring(1, _z.length() - 1);
+						
 						line = line + _z + Utility.CSV_DELIMITTER;
-						System.err.println(line);
-						System.err.println();
+						//System.err.println(line);
+						//System.err.println();
 						count++;
 					} else {
 						//line = line + Utility.CSV_DELIMITTER;

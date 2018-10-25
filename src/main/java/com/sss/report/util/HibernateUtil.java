@@ -17,7 +17,7 @@ public class HibernateUtil {
 
 	public static void start(Boolean createDB) {
 		HibernateUtil.createDB = createDB;
-		String hibernateConfigFilePath = "hibernate-derby-start.cfg.xml";// "hibernate-mysql.cfg.xml"  "hibernate-derby-start.cfg.xml";
+		String hibernateConfigFilePath = /*"hibernate-mysql.cfg.xml";*/ "hibernate-derby-start.cfg.xml";/*  "hibernate-derby-start.cfg.xml";*/
 		System.out.println("Creating database from : " + hibernateConfigFilePath);
 		buildSessionFactory(hibernateConfigFilePath);
 	}

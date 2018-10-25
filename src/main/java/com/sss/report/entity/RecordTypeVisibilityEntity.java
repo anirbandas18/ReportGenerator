@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Field;
 import com.sss.report.core.tags.Key;
 
 @Entity
@@ -20,7 +21,9 @@ public class RecordTypeVisibilityEntity extends ProfileEntity {
 	public void setId(Integer id) {
 		this.id = id;
 	}
+	@Field(isShort = true)
 	private Boolean default_;
+	@Field(isShort = true)
 	private Boolean visible;
 	@Key(name = "recordType")
 	private String recordType;
@@ -46,6 +49,29 @@ public class RecordTypeVisibilityEntity extends ProfileEntity {
 	@Override
 	public String toString() {
 		return "default=" + default_ + "/visible=" + visible;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((recordType == null) ? 0 : recordType.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RecordTypeVisibilityEntity other = (RecordTypeVisibilityEntity) obj;
+		if (recordType == null) {
+			if (other.recordType != null)
+				return false;
+		} else if (!recordType.equals(other.recordType))
+			return false;
+		return true;
 	}
 	
 	

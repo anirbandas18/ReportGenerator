@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Field;
 import com.sss.report.core.tags.Key;
 
 @Entity
@@ -26,6 +27,7 @@ public class LayoutAssignmentEntity extends ProfileEntity{
 	}
 	@Key(name = "layout")
 	private String layout;
+	@Field(isShort = false)
 	private String recordType;
 	public String getLayout() {
 		return layout;

@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.sss.report.core.tags.Field;
 import com.sss.report.core.tags.Key;
 
 @Entity
@@ -38,7 +39,31 @@ public class UserPermissionEntity extends ProfileEntity{
 	}
 	@Key(name = "name")
 	private String name;
+	@Field(isShort = true)
 	private Boolean enabled;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserPermissionEntity other = (UserPermissionEntity) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
 	
 	
 

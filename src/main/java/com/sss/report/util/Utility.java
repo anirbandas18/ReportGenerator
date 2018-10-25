@@ -85,7 +85,7 @@ public class Utility {
 	
 	private static List<Class<? extends ProfileEntity>> entityClassList;
 	private static List<Class<?>> repositoryClassList;
-	private static final String basePackageOfEntities = "com.sss.report.entity";
+	//private static final String basePackageOfEntities = "com.sss.report.entity";
 	private static final String basePackageOfRepositories = "com.sss.report.dao";
 	public static final Comparator<Field> FIELD_COMPARATOR = new Comparator<Field> () {
 

@@ -12,4 +12,6 @@ public @interface Field {
 
 	String name() default "";
 	
+	boolean isShort() default true;
+	
 }
